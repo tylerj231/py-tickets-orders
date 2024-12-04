@@ -12,6 +12,11 @@ class CinemaHall(models.Model):
     def capacity(self) -> int:
         return self.rows * self.seats_in_row
 
+    @property
+    def tickets_available(self) -> int:
+        tickets = MovieSession.objects.filter(cinema_hall=self)
+        return self.capacity - tickets.count()
+
     def __str__(self):
         return self.name
 
@@ -39,8 +44,8 @@ class Movie(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     duration = models.IntegerField()
-    genres = models.ManyToManyField(Genre)
-    actors = models.ManyToManyField(Actor)
+    genres = models.ManyToManyField(Genre, related_name="movies")
+    actors = models.ManyToManyField(Actor, related_name="movies")
 
     class Meta:
         ordering = ["title"]
@@ -83,6 +88,7 @@ class Ticket(models.Model):
     )
     row = models.IntegerField()
     seat = models.IntegerField()
+
 
     def clean(self):
         for ticket_attr_value, ticket_attr_name, cinema_hall_attr_name in [
