@@ -3,7 +3,15 @@ from datetime import datetime
 from django.db.models import Count, F
 from rest_framework import viewsets
 
-from cinema.models import Genre, Actor, CinemaHall, Movie, MovieSession, Order, Ticket
+from cinema.models import (Genre,
+                           Actor,
+                           CinemaHall,
+                           Movie,
+                           MovieSession,
+                           Order,
+                           Ticket)
+
+from cinema.pagination import OrderPagination
 
 from cinema.serializers import (
     GenreSerializer,
@@ -14,7 +22,10 @@ from cinema.serializers import (
     MovieSessionListSerializer,
     MovieDetailSerializer,
     MovieSessionDetailSerializer,
-    MovieListSerializer, OrderSerializer, TicketSerializer, TicketListSerializer,
+    MovieListSerializer,
+    OrderSerializer,
+    TicketSerializer,
+    TicketListSerializer,
     OrderListSerializer,
 )
 
@@ -28,6 +39,7 @@ class ActorViewSet(viewsets.ModelViewSet):
     queryset = Actor.objects.all()
     serializer_class = ActorSerializer
 
+
 class CinemaHallViewSet(viewsets.ModelViewSet):
     queryset = CinemaHall.objects.all()
     serializer_class = CinemaHallSerializer
@@ -39,7 +51,7 @@ class MovieViewSet(viewsets.ModelViewSet):
 
     @staticmethod
     def _params_to_ints(query_string):
-        return [int(str_id) for str_id in query_string.split(',')]
+        return [int(str_id) for str_id in query_string.split(",")]
 
     def get_queryset(self):
         queryset = self.queryset.prefetch_related("genres", "actors")
@@ -96,7 +108,7 @@ class MovieSessionViewSet(viewsets.ModelViewSet):
 
         if self.action == "retrieve":
             return MovieSessionDetailSerializer
-
+        print("3")
         return MovieSessionSerializer
 
 
@@ -113,7 +125,7 @@ class TicketViewSet(viewsets.ModelViewSet):
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
-    serializer_class = OrderSerializer
+    pagination_class = OrderPagination
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)
